@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: UNLICENSED */
 pragma solidity 0.8.4;
 
 contract Wallet {
@@ -14,7 +15,7 @@ contract Wallet {
     Transfer[] public transfers;
     mapping(address => mapping(uint => bool)) approvals;
     
-    constructor(address[] memory _approvers, uint _quorum) public {
+    constructor(address[] memory _approvers, uint _quorum) {
         approvers = _approvers;
         quorum = _quorum;
     }
