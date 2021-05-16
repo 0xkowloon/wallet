@@ -23,7 +23,11 @@ contract Wallet {
     function getApprovers() external view returns(address[] memory) {
         return approvers;
     }
-    
+
+    function isApprovedBy(uint id) external view returns(bool) {
+      return approvals[msg.sender][id];
+    }
+
     function createTransfer(uint amount, address payable to) external onlyApprover() {
         transfers.push(Transfer(
             transfers.length,

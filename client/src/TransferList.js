@@ -1,4 +1,4 @@
-function TransferList({ transfers, approveTransfer }) {
+function TransferList({ transfers, approvals, approveTransfer }) {
   return (
     <div>
       <h2>Transfers</h2>
@@ -13,14 +13,14 @@ function TransferList({ transfers, approveTransfer }) {
           </tr>
         </thead>
         <tbody>
-          {transfers.map(transfer => (
+          {transfers.map((transfer, i) => (
             <tr key={transfer.id}>
               <td>{transfer.id}</td>
               <td>{transfer.amount}</td>
               <td>{transfer.to}</td>
               <td>
                 {transfer.approvals}
-                <button onClick={() => approveTransfer(transfer.id)}>Approve</button>
+                <button onClick={() => approveTransfer(transfer.id)} disabled={approvals[i]}>Approve</button>
               </td>
               <td>{transfer.sent ? 'yes' : 'no'}</td>
             </tr>

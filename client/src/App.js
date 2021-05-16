@@ -11,6 +11,7 @@ function App() {
   const [approvers, setApprovers] = useState([]);
   const [quorum, setQuorum] = useState(undefined);
   const [transfers, setTransfers] = useState([]);
+  const [approvals, setApprovals] = useState([]);
 
   useEffect(() => {
     const init = async () => {
@@ -19,13 +20,24 @@ function App() {
       const wallet = await getWallet(web3);
       const approvers = await wallet.methods.getApprovers().call();
       const quorum = await wallet.methods.quorum().call();
-      await fetchTransfers();
 
       setWeb3(web3);
       setAccounts(accounts);
-      setWallet(wallet);
       setApprovers(approvers);
       setQuorum(quorum);
+      setWallet(wallet);
+      // NOTE: wallet is not set in the functions yet as setState is async
+      // and I don't want to pass it around, so I am calling it directly
+      // without calling the function
+      const transfers = await wallet.methods.getTransfers().call();
+      setTransfers(transfers);
+      const approvals = await Promise.all(transfers.map(async (transfer) => {
+        return await wallet
+          .methods
+          .isApprovedBy(transfer.id)
+          .call()
+      }));
+      setApprovals(approvals);
     }
     init();
   }, []);
@@ -33,6 +45,16 @@ function App() {
   const fetchTransfers = async () => {
     const transfers = await wallet.methods.getTransfers().call();
     setTransfers(transfers);
+  }
+
+  const fetchApprovals = async () => {
+    const approvals = await Promise.all(transfers.map(async (transfer) => {
+      return await wallet
+        .methods
+        .isApprovedBy(transfer.id)
+        .call()
+    }));
+    setApprovals(approvals);
   }
 
   const createTransfer = async (transfer) => {
@@ -51,6 +73,7 @@ function App() {
       .send({ from: accounts[0] });
 
     await fetchTransfers();
+    await fetchApprovals();
   }
 
   if (
@@ -68,7 +91,7 @@ function App() {
       Multisig Dapp
       <Header approvers={approvers} quorum={quorum} />
       <NewTransfer createTransfer={createTransfer} />
-      <TransferList transfers={transfers} approveTransfer={approveTransfer} />
+      <TransferList transfers={transfers} approvals={approvals} approveTransfer={approveTransfer} />
     </div>
   );
 }
