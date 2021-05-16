@@ -19,30 +19,38 @@ function App() {
       const wallet = await getWallet(web3);
       const approvers = await wallet.methods.getApprovers().call();
       const quorum = await wallet.methods.quorum().call();
-      const transfers = await wallet.methods.getTransfers().call();
+      await fetchTransfers();
 
       setWeb3(web3);
       setAccounts(accounts);
       setWallet(wallet);
       setApprovers(approvers);
       setQuorum(quorum);
-      setTransfers(transfers);
     }
     init();
   }, []);
 
-  const createTransfer = transfer => {
-    wallet
+  const fetchTransfers = async () => {
+    const transfers = await wallet.methods.getTransfers().call();
+    setTransfers(transfers);
+  }
+
+  const createTransfer = async (transfer) => {
+    await wallet
       .methods
       .createTransfer(transfer.amount, transfer.to)
       .send({ from: accounts[0] });
+
+    await fetchTransfers();
   }
 
-  const approveTransfer = transferId => {
-    wallet
+  const approveTransfer = async (transferId) => {
+    await wallet
       .methods
       .approveTransfer(transferId)
       .send({ from: accounts[0] });
+
+    await fetchTransfers();
   }
 
   if (
