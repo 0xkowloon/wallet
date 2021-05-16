@@ -1,3 +1,4 @@
+const { expectRevert } = require('@openzeppelin/test-helpers');
 const Wallet = artifacts.require('Wallet');
 
 contract('Wallet', (accounts) => {
@@ -28,5 +29,12 @@ contract('Wallet', (accounts) => {
     assert(transfer.to === receiver);
     assert(transfer.approvals === '0');
     assert(transfer.sent === false);
+  });
+
+  it('should not create transfers if sender is not approved', async () => {
+    await expectRevert(
+      wallet.createTransfer(100, accounts[5], { from: accounts[4] }),
+      'only approver allowed',
+    );
   });
 });
