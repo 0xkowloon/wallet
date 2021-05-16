@@ -37,4 +37,15 @@ contract('Wallet', (accounts) => {
       'only approver allowed',
     );
   });
+
+  it('should increment approvals', async () => {
+    await wallet.createTransfer(100, accounts[5], { from: accounts[0] });
+    await wallet.approveTransfer(0, { from: accounts[0] });
+    const transfers = await wallet.getTransfers();
+    const transfer = transfers[0];
+    assert(transfer.approvals === '1');
+    assert(transfer.sent === false);
+    const balance = await web3.eth.getBalance(wallet.address);
+    assert(balance === '1000');
+  });
 });
