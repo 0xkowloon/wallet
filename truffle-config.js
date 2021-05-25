@@ -1,6 +1,7 @@
 const path = require('path');
 const provider = require('@truffle/hdwallet-provider');
-require('dotenv').config();
+const fs = require('fs');
+const secrets = JSON.parse(fs.readFileSync('.secrets.json').toString().trim());
 
 /**
  * Use this file to configure your truffle project. It's seeded with some
@@ -43,17 +44,14 @@ module.exports = {
 
   networks: {
     kovan: {
-      provider: () =>
-        new provider(
-          [
-            process.env.PRIVATE_KEY_1,
-            process.env.PRIVATE_KEY_2,
-            process.env.PRIVATE_KEY_3,
-          ],
-          process.env.INFURA_URL,
+      provider: () => {
+        return new provider(
+          secrets.privateKeys,
+          `https://kovan.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
           0,
           3,
-        );
+        )
+      },
       network_id: 42,
     },
   },
